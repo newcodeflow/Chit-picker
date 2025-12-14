@@ -133,4 +133,51 @@
   let monthIndex = 0;
 
   function pickChit() {
-    if
+    if (names.length === 0 || monthIndex >= months.length) {
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerText = "All chits have been picked!";
+      resultDiv.classList.add("show");
+      return;
+    }
+
+    const index = Math.floor(Math.random() * names.length);
+    const picked = names.splice(index, 1)[0];
+    const currentMonth = months[monthIndex];
+    history.push({ month: currentMonth, name: picked });
+
+    // Show result with animation
+    const resultDiv = document.getElementById("result");
+    resultDiv.innerText = `${currentMonth}: ${picked} gets $9,000`;
+    resultDiv.classList.remove("show");
+    void resultDiv.offsetWidth; // trigger reflow
+    resultDiv.classList.add("show");
+
+    // Add to history
+    const historyList = document.getElementById("history");
+    const li = document.createElement("li");
+    li.innerText = `${currentMonth}: ${picked}`;
+    historyList.appendChild(li);
+
+    // Confetti effect
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
+
+    monthIndex++;
+  }
+
+  function resetPicker() {
+    names = [...namesList];
+    history = [];
+    monthIndex = 0;
+    document.getElementById("history").innerHTML = "";
+    const resultDiv = document.getElementById("result");
+    resultDiv.innerText = "";
+    resultDiv.classList.remove("show");
+  }
+</script>
+
+</body>
+</html>
