@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Chits</title>
+<title>Mustafa Bhai Chit Fund</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 <style>
   body {
@@ -114,15 +114,20 @@
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <script>
-  // Base names
-  const namesList = ["Jawwad", "Imran", "Abdiya", "Farhan"];
-  const months = ["February", "March", "April", "May", "June", "July", "August", "September", "October"];
+  // Names and max chits per person
+  const namesList = [
+    { name: "Jawwad", max: 1 },
+    { name: "Imran", max: 3 },
+    { name: "Abdiya", max: 2 },
+    { name: "Farhan", max: 3 }
+  ];
 
+  const months = ["February", "March", "April", "May", "June", "July", "August", "September", "October"];
   let monthIndex = 0;
 
   // Track how many times each person has been picked
   let pickCounts = {};
-  namesList.forEach(name => pickCounts[name] = 0);
+  namesList.forEach(person => pickCounts[person.name] = 0);
 
   function pickChit() {
     if (monthIndex >= months.length) {
@@ -132,8 +137,8 @@
       return;
     }
 
-    // Filter names that still have remaining chits (max 3 per person)
-    const availableNames = namesList.filter(name => pickCounts[name] < 3);
+    // Filter names with remaining chits
+    const availableNames = namesList.filter(person => pickCounts[person.name] < person.max);
     if (availableNames.length === 0) {
       const resultDiv = document.getElementById("result");
       resultDiv.innerText = "All chits have been picked!";
@@ -141,30 +146,32 @@
       return;
     }
 
-    // Pick random name from available
+    // Pick random name
     const index = Math.floor(Math.random() * availableNames.length);
-    const picked = availableNames[index];
-
-    // Increment count
-    pickCounts[picked]++;
-
-    // Format as 1st, 2nd, 3rd
-    const suffix = pickCounts[picked] === 1 ? "1st" :
-                   pickCounts[picked] === 2 ? "2nd" : "3rd";
+    const pickedPerson = availableNames[index];
+    pickCounts[pickedPerson.name]++;
 
     const currentMonth = months[monthIndex];
 
+    // Determine suffix only for people with multiple chits
+    let displayName = pickedPerson.name;
+    if (pickedPerson.max > 1) {
+      const suffix = pickCounts[pickedPerson.name] === 1 ? "1st" :
+                     pickCounts[pickedPerson.name] === 2 ? "2nd" : "3rd";
+      displayName += ` (${suffix})`;
+    }
+
     // Show picked result
     const resultDiv = document.getElementById("result");
-    resultDiv.innerText = `${currentMonth}: ${picked} (${suffix}) gets $9,000`;
+    resultDiv.innerText = `${currentMonth}: ${displayName} gets $9,000`;
     resultDiv.classList.remove("show");
-    void resultDiv.offsetWidth; // trigger reflow
+    void resultDiv.offsetWidth;
     resultDiv.classList.add("show");
 
     // Add to history
     const historyList = document.getElementById("history");
     const li = document.createElement("li");
-    li.innerText = `${currentMonth}: ${picked} (${suffix})`;
+    li.innerText = `${currentMonth}: ${displayName}`;
     historyList.appendChild(li);
 
     // Confetti animation
@@ -180,7 +187,7 @@
     resultDiv.innerText = "";
     resultDiv.classList.remove("show");
     // Reset pick counts
-    namesList.forEach(name => pickCounts[name] = 0);
+    namesList.forEach(person => pickCounts[person.name] = 0);
   }
 </script>
 
