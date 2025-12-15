@@ -114,50 +114,38 @@
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <script>
-  // Names and max chits per person
-  const namesList = [
-    { name: "Jawwad", max: 1 },
-    { name: "Imran", max: 3 },
-    { name: "Abdiya", max: 2 },
-    { name: "Farhan", max: 3 }
-  ];
-
+  // Original list of names (duplicates represent multiple chits)
+  let names = ["Jawwad", "Imran", "Imran", "Imran", "Abdiya", "Abdiya", "Farhan", "Farhan", "Farhan"];
   const months = ["February", "March", "April", "May", "June", "July", "August", "September", "October"];
+
   let monthIndex = 0;
 
-  // Track how many times each person has been picked
+  // Track how many times each name has been picked (for suffix)
   let pickCounts = {};
-  namesList.forEach(person => pickCounts[person.name] = 0);
 
   function pickChit() {
-    if (monthIndex >= months.length) {
+    if (names.length === 0 || monthIndex >= months.length) {
       const resultDiv = document.getElementById("result");
       resultDiv.innerText = "All chits have been picked!";
       resultDiv.classList.add("show");
       return;
     }
 
-    // Filter names with remaining chits
-    const availableNames = namesList.filter(person => pickCounts[person.name] < person.max);
-    if (availableNames.length === 0) {
-      const resultDiv = document.getElementById("result");
-      resultDiv.innerText = "All chits have been picked!";
-      resultDiv.classList.add("show");
-      return;
-    }
+    // Pick a random index from the remaining names
+    const index = Math.floor(Math.random() * names.length);
+    const picked = names.splice(index, 1)[0]; // remove picked name
 
-    // Pick random name
-    const index = Math.floor(Math.random() * availableNames.length);
-    const pickedPerson = availableNames[index];
-    pickCounts[pickedPerson.name]++;
+    // Increment pick count
+    pickCounts[picked] = (pickCounts[picked] || 0) + 1;
 
     const currentMonth = months[monthIndex];
 
-    // Determine suffix only for people with multiple chits
-    let displayName = pickedPerson.name;
-    if (pickedPerson.max > 1) {
-      const suffix = pickCounts[pickedPerson.name] === 1 ? "1st" :
-                     pickCounts[pickedPerson.name] === 2 ? "2nd" : "3rd";
+    // Only show suffix if name occurs multiple times in original list
+    const totalOccurrences = names.concat([picked]).filter(n => n === picked).length + 1;
+    let displayName = picked;
+    if (totalOccurrences > 1) {
+      const suffix = pickCounts[picked] === 1 ? "1st" :
+                     pickCounts[picked] === 2 ? "2nd" : "3rd";
       displayName += ` (${suffix})`;
     }
 
@@ -181,13 +169,13 @@
   }
 
   function resetPicker() {
+    names = ["Jawwad", "Imran", "Imran", "Imran", "Abdiya", "Abdiya", "Farhan", "Farhan", "Farhan"];
     monthIndex = 0;
+    pickCounts = {};
     document.getElementById("history").innerHTML = "";
     const resultDiv = document.getElementById("result");
     resultDiv.innerText = "";
     resultDiv.classList.remove("show");
-    // Reset pick counts
-    namesList.forEach(person => pickCounts[person.name] = 0);
   }
 </script>
 
