@@ -1,67 +1,188 @@
-const namesList = ["Jawwad", "Imran", "Abdiya", "Farhan"];
-const months = ["February", "March", "April", "May", "June", "July", "August", "September", "October"];
-
-let monthIndex = 0;
-
-// Track how many times each person has been picked
-let pickCounts = {};
-namesList.forEach(name => pickCounts[name] = 0);
-
-function pickChit() {
-  if (monthIndex >= months.length) {
-    const resultDiv = document.getElementById("result");
-    resultDiv.innerText = "All chits have been picked!";
-    resultDiv.classList.add("show");
-    return;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Chits</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #7b2ff7, #f107a3);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    color: #fff;
   }
 
-  // Filter names that still have remaining chits (max 3 per person)
-  const availableNames = namesList.filter(name => pickCounts[name] < 3);
-  if (availableNames.length === 0) {
-    const resultDiv = document.getElementById("result");
-    resultDiv.innerText = "All chits have been picked!";
-    resultDiv.classList.add("show");
-    return;
+  h1 {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+    text-align: center;
   }
 
-  // Pick random name from available
-  const index = Math.floor(Math.random() * availableNames.length);
-  const picked = availableNames[index];
+  button {
+    background: #fff;
+    color: #7b2ff7;
+    font-weight: bold;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    margin-top: 10px;
+  }
 
-  // Increment count
-  pickCounts[picked]++;
+  button:hover {
+    background: #7b2ff7;
+    color: #fff;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  }
 
-  // Format as 1st, 2nd, 3rd
-  const suffix = pickCounts[picked] === 1 ? "1st" :
-                 pickCounts[picked] === 2 ? "2nd" : "3rd";
+  .result {
+    margin-top: 30px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    background: rgba(255,255,255,0.2);
+    padding: 20px 30px;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    text-align: center;
+    min-width: 300px;
+    transition: all 0.4s ease;
+    opacity: 0;
+  }
 
-  const currentMonth = months[monthIndex];
+  .show {
+    opacity: 1;
+  }
 
-  // Show picked result
-  const resultDiv = document.getElementById("result");
-  resultDiv.innerText = `${currentMonth}: ${picked} (${suffix}) gets $9,000`;
-  resultDiv.classList.remove("show");
-  void resultDiv.offsetWidth;
-  resultDiv.classList.add("show");
+  ul {
+    margin-top: 30px;
+    max-height: 300px;
+    overflow-y: auto;
+    width: 320px;
+    background: rgba(255,255,255,0.15);
+    padding: 15px;
+    border-radius: 12px;
+    list-style-type: none;
+  }
 
-  // Add to history
-  const historyList = document.getElementById("history");
-  const li = document.createElement("li");
-  li.innerText = `${currentMonth}: ${picked} (${suffix})`;
-  historyList.appendChild(li);
+  ul li {
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.3);
+    transition: all 0.3s;
+  }
 
-  // Confetti animation
-  confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+  ul li:last-child {
+    border-bottom: none;
+  }
 
-  monthIndex++;
-}
+  ul li:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateX(5px);
+  }
 
-function resetPicker() {
-  monthIndex = 0;
-  document.getElementById("history").innerHTML = "";
-  const resultDiv = document.getElementById("result");
-  resultDiv.innerText = "";
-  resultDiv.classList.remove("show");
-  // Reset pick counts
+  .reset-btn {
+    background: #ff4b2b;
+    color: #fff;
+  }
+
+  .reset-btn:hover {
+    background: #ff416c;
+  }
+</style>
+</head>
+<body>
+
+<h1>Mustafa Bhai Chit Fund</h1>
+
+<button onclick="pickChit()">Pick Next Chit</button>
+
+<div class="result" id="result"></div>
+
+<ul id="history"></ul>
+
+<button class="reset-btn" onclick="resetPicker()">Reset Picker</button>
+
+<!-- Confetti JS -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<script>
+  // Base names
+  const namesList = ["Jawwad", "Imran", "Abdiya", "Farhan"];
+  const months = ["February", "March", "April", "May", "June", "July", "August", "September", "October"];
+
+  let monthIndex = 0;
+
+  // Track how many times each person has been picked
+  let pickCounts = {};
   namesList.forEach(name => pickCounts[name] = 0);
-}
+
+  function pickChit() {
+    if (monthIndex >= months.length) {
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerText = "All chits have been picked!";
+      resultDiv.classList.add("show");
+      return;
+    }
+
+    // Filter names that still have remaining chits (max 3 per person)
+    const availableNames = namesList.filter(name => pickCounts[name] < 3);
+    if (availableNames.length === 0) {
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerText = "All chits have been picked!";
+      resultDiv.classList.add("show");
+      return;
+    }
+
+    // Pick random name from available
+    const index = Math.floor(Math.random() * availableNames.length);
+    const picked = availableNames[index];
+
+    // Increment count
+    pickCounts[picked]++;
+
+    // Format as 1st, 2nd, 3rd
+    const suffix = pickCounts[picked] === 1 ? "1st" :
+                   pickCounts[picked] === 2 ? "2nd" : "3rd";
+
+    const currentMonth = months[monthIndex];
+
+    // Show picked result
+    const resultDiv = document.getElementById("result");
+    resultDiv.innerText = `${currentMonth}: ${picked} (${suffix}) gets $9,000`;
+    resultDiv.classList.remove("show");
+    void resultDiv.offsetWidth; // trigger reflow
+    resultDiv.classList.add("show");
+
+    // Add to history
+    const historyList = document.getElementById("history");
+    const li = document.createElement("li");
+    li.innerText = `${currentMonth}: ${picked} (${suffix})`;
+    historyList.appendChild(li);
+
+    // Confetti animation
+    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+
+    monthIndex++;
+  }
+
+  function resetPicker() {
+    monthIndex = 0;
+    document.getElementById("history").innerHTML = "";
+    const resultDiv = document.getElementById("result");
+    resultDiv.innerText = "";
+    resultDiv.classList.remove("show");
+    // Reset pick counts
+    namesList.forEach(name => pickCounts[name] = 0);
+  }
+</script>
+
+</body>
+</html>
